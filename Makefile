@@ -1,4 +1,4 @@
-PROJECT_NAME = pipelines
+PROJECT_NAME = threaded_pipeline
 VOLUMES = -v $$PWD:/tmp/src -w /tmp/src
 
 image:

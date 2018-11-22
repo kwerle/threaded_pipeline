@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pipelines (0.1.0)
+    threaded_pipeline (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -78,7 +78,7 @@ DEPENDENCIES
   guard-rubocop
   minitest (~> 5.0)
   minitest-color
-  pipelines!
+  threaded_pipeline!
   rake (~> 10.0)
   rubocop
 

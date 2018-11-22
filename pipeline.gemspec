@@ -1,10 +1,10 @@
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'pipelines/version'
+require 'threaded_pipeline/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'pipelines'
-  spec.version       = Pipelines::VERSION
+  spec.name          = 'threaded_pipeline'
+  spec.version       = ThreadedPipeline::VERSION
   spec.authors       = ['Kurt Werle']
   spec.email         = ['kurt@CircleW.org']
 

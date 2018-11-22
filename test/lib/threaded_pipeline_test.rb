@@ -2,36 +2,41 @@
 
 require 'test_helper'
 
-class PipelinesTest < Minitest::Test
+class ThreadedPipelineTest < Minitest::Test
+  def two_stage_pipeline
+    pipeline = ThreadedPipeline.new
+    pipeline.stages << ->(arg) { arg + 1 }
+    pipeline.stages << ->(arg) { arg + 2 }
+    pipeline
+  end
+
   def test_that_it_has_a_version_number
-    refute_nil ::Pipelines::VERSION
+    refute_nil ::ThreadedPipeline::VERSION
   end
 
   def test_new_should_work
-    pipeline = Pipelines.new
+    pipeline = ThreadedPipeline.new
     refute_nil pipeline
   end
 
   def test_stages_should_work
-    pipeline = Pipelines.new
+    pipeline = ThreadedPipeline.new
     pipeline.stages
   end
 
   def test_add_stage_should_work
-    pipeline = Pipelines.new
+    pipeline = ThreadedPipeline.new
     pipeline.stages << ->(arg) { arg }
   end
 
   def test_processing
-    pipeline = Pipelines.new
-    pipeline.stages << ->(arg) { arg + 1 }
-    pipeline.stages << ->(arg) { arg + 2 }
+    pipeline = two_stage_pipeline
     results = pipeline.process([1, 2])
     assert_equal([4, 5], results)
   end
 
   def test_performance
-    pipeline = Pipelines.new
+    pipeline = ThreadedPipeline.new
     sleep_time = 0.1
     pipeline.stages << ->(arg) { sleep(sleep_time); arg + 1 }
     pipeline.stages << ->(arg) { sleep(sleep_time); arg + 1 }
@@ -45,9 +50,7 @@ class PipelinesTest < Minitest::Test
   end
 
   def test_feeding
-    pipeline = Pipelines.new
-    pipeline.stages << ->(arg) { arg + 1 }
-    pipeline.stages << ->(arg) { arg + 2 }
+    pipeline = two_stage_pipeline
     pipeline.feed(1)
     pipeline.feed(2)
     results = pipeline.finish
@@ -55,25 +58,26 @@ class PipelinesTest < Minitest::Test
   end
 
   def test_double_start_fails
-    pipeline = Pipelines.new
-    pipeline.stages << ->(arg) { arg + 1 }
-    pipeline.stages << ->(arg) { arg + 2 }
+    pipeline = two_stage_pipeline
     pipeline.feed(1)
     assert_raises(RuntimeError) { pipeline.process([2]) }
   end
 
   def test_double_run_works
-    pipeline = Pipelines.new
-    pipeline.stages << ->(arg) { arg + 1 }
-    pipeline.stages << ->(arg) { arg + 2 }
+    pipeline = two_stage_pipeline
     results = pipeline.process([1, 2])
     assert_equal([4, 5], results)
     results = pipeline.process([1, 2])
     assert_equal([4, 5], results)
-    pipeline.feed(1)
     pipeline.feed(2)
+    pipeline.feed(3)
     results = pipeline.finish
-    assert_equal([4, 5], results)
+    assert_equal([5, 6], results)
+  end
+
+  def test_no_finish_before_starting
+    pipeline = two_stage_pipeline
+    assert_raises(RuntimeError) { pipeline.finish }
   end
 
 end

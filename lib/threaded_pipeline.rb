@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'pipelines/version'
+require 'threaded_pipeline/version'
 
 # Be awesome
-class Pipelines
+class ThreadedPipeline
   attr_accessor :stages
   attr_reader   :started
 
@@ -24,6 +24,8 @@ class Pipelines
   end
 
   def finish
+    raise "You never started pipeline #{inspect}" unless @started
+
     queue_hash[stages.first] << finish_object
     @threads.each(&:join)
     @started = false

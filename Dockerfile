@@ -1,11 +1,11 @@
 # ruby:alpine does not play well with rubocop
 FROM ruby
 
-WORKDIR /pipelines
+WORKDIR /threaded_pipeline
 
 COPY *.gemspec ./
 COPY Gemfile* ./
-COPY lib/pipelines/version.rb lib/pipelines/version.rb
+COPY lib/threaded_pipeline/version.rb lib/threaded_pipeline/version.rb
 
 RUN bundle -j 6
 
