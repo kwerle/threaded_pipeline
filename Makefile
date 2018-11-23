@@ -12,3 +12,7 @@ console: image
 
 guard: image
 	docker run -it $(VOLUMES) $(PROJECT_NAME) bundle exec guard -c
+
+doc: image
+	docker run $(VOLUMES) $(PROJECT_NAME) yard
+	open doc/index.html

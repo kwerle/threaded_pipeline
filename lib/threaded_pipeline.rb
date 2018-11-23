@@ -2,27 +2,74 @@
 
 require 'threaded_pipeline/version'
 
-# Be awesome
+# Create a pipeline where each stage runs in its own thread.  Each stage must
+# accept a single argument and will pass its result to the next stage.  The
+# results of the last stage are then returned (unless opted out).
+#
+# = Example
+#
+#  threaded_pipeline = ThreadedPipeline.new
+#  threaded_pipeline.stages << -> (url) { fetch_large_csv(url) }
+#  threaded_pipeline.stages << -> (csv_data) { process_csv_data(csv_data) }
+#  results = threaded_pipeline.process([list, of, large, csv, urls])
+#
+# = Example
+#
+#  another_pipeline = ThreadedPipeline.new(discard_results: true)
+#  another_pipeline.stages << -> (url) { api_query(url) }
+#  another_pipeline.stages << -> (returned_data) { process_returned_data(returned_data) }
+#  another_pipeline.stages << -> (processed_results) { record_results_in_database(processed_results) }
+#  while url = web_crawl_urls
+#    another_pipeline.feed(url)
+#  end
+#  another_pipeline.finish
+#
 class ThreadedPipeline
+  # Each stage will process the results of the previous one.
+  #
+  #   my_threaded_pipeline.stages << ->(arg) { process(arg) }
   attr_accessor :stages
   attr_reader   :started
 
-  def initialize(stages = [])
-    @stages = stages
+  def initialize(discard_results: false)
+    @stages = []
     @started = false
+    @discard_results = discard_results
   end
 
+  # The elements of enumerable will begin processing immediately.
   def process(enumerable)
     initialize_run
     initialize_first_queue(enumerable)
     finish
   end
 
+  # Process the enumerale list without using threads.
+  # Maybe you have a bug you want to work on without threading.  Or you have a
+  # benchmark you want to run.
+  def process_unthreaded(enumerable)
+    initialize_run
+    @results = enumerable.map do |element|
+      stages.each do |stage|
+        element = stage[element]
+      end
+      element
+    end
+    finish
+  end
+
+  # Add another element to the list of work to be processed.  Work will start
+  # on the first element immediately (only feed once you have all your stages added).
+  # You could use .process if you already have the full list.
+  # This method is not thread safe (wrap access in a mutex if feeding from
+  # multiple threads).
   def feed(element)
     initialize_run unless @started
     queue_hash[stages.first] << element
   end
 
+  # Wait for all the threads to finish and return the results.
+  # @return results of last stage (unless discard_results was set to true)
   def finish
     raise "You never started pipeline #{inspect}" unless @started
 
@@ -31,7 +78,7 @@ class ThreadedPipeline
     @started = false
     @queue_hash = nil
     @finish_object = nil
-    @results
+    @results unless @discard_results
   end
 
   private
@@ -50,7 +97,7 @@ class ThreadedPipeline
           result = stage[element]
           if index == stages.count - 1
             # Only one thread is accessing @results
-            @results << result
+            @results << result unless @discard_results
           else
             queue_hash[stages[index + 1]] << result
           end

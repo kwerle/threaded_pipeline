@@ -66,6 +66,7 @@ GEM
     shellany (0.0.1)
     thor (0.20.3)
     unicode-display_width (1.4.0)
+    yard (0.9.16)
 
 PLATFORMS
   ruby
@@ -78,9 +79,10 @@ DEPENDENCIES
   guard-rubocop
   minitest (~> 5.0)
   minitest-color
-  threaded_pipeline!
   rake (~> 10.0)
   rubocop
+  threaded_pipeline!
+  yard
 
 BUNDLED WITH
    1.17.1

@@ -3,8 +3,8 @@
 require 'test_helper'
 
 class ThreadedPipelineTest < Minitest::Test
-  def two_stage_pipeline
-    pipeline = ThreadedPipeline.new
+  def two_stage_pipeline(*args)
+    pipeline = ThreadedPipeline.new(*args)
     pipeline.stages << ->(arg) { arg + 1 }
     pipeline.stages << ->(arg) { arg + 2 }
     pipeline
@@ -80,4 +80,15 @@ class ThreadedPipelineTest < Minitest::Test
     assert_raises(RuntimeError) { pipeline.finish }
   end
 
+  def test_discard_results
+    pipeline = two_stage_pipeline(discard_results: true)
+    results = pipeline.process([1, 2])
+    assert_nil(results)
+  end
+
+  def test_process_unthreaded
+    pipeline = two_stage_pipeline
+    results = pipeline.process_unthreaded([1, 2])
+    assert_equal([4, 5], results)
+  end
 end
