@@ -87,6 +87,7 @@ class ThreadedPipeline
     raise "Already started pipeline #{inspect}" if @started
 
     @started = true
+    @queue_hash = nil
     @threads = []
     @results = []
     stages.each_with_index do |stage, index|

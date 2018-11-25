@@ -6,7 +6,7 @@ class ThreadedPipelineTest < Minitest::Test
   def two_stage_pipeline(*args)
     pipeline = ThreadedPipeline.new(*args)
     pipeline.stages << ->(arg) { arg + 1 }
-    pipeline.stages << ->(arg) { arg + 2 }
+    pipeline.stages << ->(arg) { arg * 2 }
     pipeline
   end
 
@@ -32,19 +32,19 @@ class ThreadedPipelineTest < Minitest::Test
   def test_processing
     pipeline = two_stage_pipeline
     results = pipeline.process([1, 2])
-    assert_equal([4, 5], results)
+    assert_equal([4, 6], results)
   end
 
   def test_performance
     pipeline = ThreadedPipeline.new
     sleep_time = 0.1
     pipeline.stages << ->(arg) { sleep(sleep_time); arg + 1 }
-    pipeline.stages << ->(arg) { sleep(sleep_time); arg + 1 }
-    pipeline.stages << ->(arg) { sleep(sleep_time); arg + 1 }
+    pipeline.stages << ->(arg) { sleep(sleep_time); arg * 2 }
+    pipeline.stages << ->(arg) { sleep(sleep_time); arg + 3 }
     start_time = Time.now
     results = pipeline.process([1, 2, 3, 4, 5])
     end_time = Time.now
-    assert_equal([4, 5, 6, 7, 8], results)
+    assert_equal([7, 9, 11, 13, 15], results)
     # We're doing 3 stages, so it should not be quite 3 times as fast
     assert_operator(sleep_time * results.count * pipeline.stages.count / 2.0, :>, end_time - start_time)
   end
@@ -54,7 +54,7 @@ class ThreadedPipelineTest < Minitest::Test
     pipeline.feed(1)
     pipeline.feed(2)
     results = pipeline.finish
-    assert_equal([4, 5], results)
+    assert_equal([4, 6], results)
   end
 
   def test_double_start_fails
@@ -66,13 +66,13 @@ class ThreadedPipelineTest < Minitest::Test
   def test_double_run_works
     pipeline = two_stage_pipeline
     results = pipeline.process([1, 2])
-    assert_equal([4, 5], results)
+    assert_equal([4, 6], results)
     results = pipeline.process([1, 2])
-    assert_equal([4, 5], results)
+    assert_equal([4, 6], results)
     pipeline.feed(2)
     pipeline.feed(3)
     results = pipeline.finish
-    assert_equal([5, 6], results)
+    assert_equal([6, 8], results)
   end
 
   def test_no_finish_before_starting
@@ -89,6 +89,6 @@ class ThreadedPipelineTest < Minitest::Test
   def test_process_unthreaded
     pipeline = two_stage_pipeline
     results = pipeline.process_unthreaded([1, 2])
-    assert_equal([4, 5], results)
+    assert_equal([4, 6], results)
   end
 end

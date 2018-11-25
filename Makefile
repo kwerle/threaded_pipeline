@@ -16,3 +16,11 @@ guard: image
 doc: image
 	docker run $(VOLUMES) $(PROJECT_NAME) yard
 	open doc/index.html
+
+test: image
+	docker run $(VOLUMES) $(PROJECT_NAME) yard
+
+test_multiple:
+	docker run --rm $(VOLUMES) ruby bash -c "bundle -j 4 && rake"
+	docker run --rm $(VOLUMES) jruby bash -c "bundle -j 4 && rake"
+	docker run --rm $(VOLUMES) rubinius bash -c "bundle -j 4 && rake"

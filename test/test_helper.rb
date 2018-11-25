@@ -5,4 +5,8 @@ require 'minitest/autorun'
 
 require 'minitest/color'
 
-require 'byebug'
+begin
+  require 'byebug'
+rescue LoadError
+  puts 'We are probably in jruby or some other non-byebug platform.'
+end
