@@ -93,13 +93,8 @@ class ThreadedPipelineTest < Minitest::Test
   end
 
   def test_process_unthreaded
-    # puts "test_process_unthreaded"
     pipeline = two_stage_pipeline
-    # puts "test_process_unthreaded inited"
-    # sleep 5
     results = pipeline.process_unthreaded([1, 2])
-    # puts "test_process_unthreaded result"
-    # sleep 5
     assert_equal([4, 6], results)
     assert_equal([false, false], pipeline.instance_variable_get(:@threads).map(&:status))
   end
