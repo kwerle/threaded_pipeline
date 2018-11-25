@@ -26,5 +26,3 @@ test_multiple:
 	docker run --rm $(VOLUMES) ruby bash -c "bundle -j 4 && rake"
 	rm -f Gemfile.lock
 	docker run --rm $(VOLUMES) jruby bash -c "bundle -j 4 && rake"
-	rm -f Gemfile.lock
-	docker run --rm $(VOLUMES) rubinius bash -c "bundle -j 4 && rake"
