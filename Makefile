@@ -19,10 +19,10 @@ doc: image
 	open doc/index.html
 
 test: image
-	docker run $(VOLUMES) $(PROJECT_NAME) yard
+	docker run $(VOLUMES) $(PROJECT_NAME) rake
 
-test_multiple:
-	rm -f Gemfile.lock
-	docker run --rm $(VOLUMES) ruby bash -c "bundle -j 4 && rake"
+test_jruby:
 	rm -f Gemfile.lock
 	docker run --rm $(VOLUMES) jruby bash -c "bundle -j 4 && rake"
+
+test_multiple: test test_jruby
