@@ -10,7 +10,7 @@ require 'threaded_pipeline/version'
 #
 #  threaded_pipeline = ThreadedPipeline.new
 #  threaded_pipeline.stages << -> (url) { fetch_large_csv(url) }
-#  threaded_pipeline.stages << -> (csv_data) { process_csv_data(csv_data) }
+#  threaded_pipeline.stages << -> (local_file) { process_local_file(local_file) }
 #  results = threaded_pipeline.process([list, of, large, csv, urls])
 #
 # = Example

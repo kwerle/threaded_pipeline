@@ -1,8 +1,15 @@
 # ThreadedPipeline
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/threaded_pipeline`. To experiment with that code, run `bin/console` for an interactive prompt.
+Recently I have been doing a lot of the pattern:
+1. Download file from list of URLs
+1. Process file
+1. Record results
 
-TODO: Delete this and the text above, and describe your gem
+Part 1 is network bound.  Part 2 is CPU bound.  Part 3 is service bound (database in my case).  There is no reason I should not run these three in parallel, so this gem is the encapsulation of the general pattern of running parts of a pipeline in parallel.
+
+Greatly inspired by the [parallel gem](https://github.com/grosser/parallel).
+
+Tested with MRI and JRuby.
 
 ## Installation
 
@@ -22,7 +29,13 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```
+threaded_pipeline = ThreadedPipeline.new
+threaded_pipeline.stages << -> (url) { fetch_large_csv(url) }
+threaded_pipeline.stages << -> (local_file) { process_local_file(local_file) }
+threaded_pipeline.stages << -> (processed_results) { record_results_in_database(processed_results) }
+results = threaded_pipeline.process([list, of, large, csv, urls])
+```
 
 ## Development
 
