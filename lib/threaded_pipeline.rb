@@ -83,15 +83,18 @@ class ThreadedPipeline
 
   private
 
-  def initialize_run
+  def initialize_run(without_threads = false)
     raise "Already started pipeline #{inspect}" if @started
 
     @started = true
     @queue_hash = nil
     @threads = []
     @results = []
-    stages.each_with_index do |stage, index|
-      @threads << Thread.new do
+    return if without_threads
+
+    queue_hash # initialize outside of threads
+    @threads = stages.each_with_index.map do |stage, index|
+      Thread.new do
         # Grab the next element off our queue
         while (element = queue_hash[stage].pop) != finish_object
           # The way you call a lambda is with []'s.  Who knew?

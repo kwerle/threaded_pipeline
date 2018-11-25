@@ -33,6 +33,7 @@ class ThreadedPipelineTest < Minitest::Test
     pipeline = two_stage_pipeline
     results = pipeline.process([1, 2])
     assert_equal([4, 6], results)
+    assert_equal([false, false], pipeline.instance_variable_get(:@threads).map(&:status))
   end
 
   def test_performance
@@ -47,6 +48,7 @@ class ThreadedPipelineTest < Minitest::Test
     assert_equal([7, 9, 11, 13, 15], results)
     # We're doing 3 stages, so it should not be quite 3 times as fast
     assert_operator(sleep_time * results.count * pipeline.stages.count / 2.0, :>, end_time - start_time)
+    assert_equal([false, false, false], pipeline.instance_variable_get(:@threads).map(&:status))
   end
 
   def test_feeding
@@ -55,6 +57,7 @@ class ThreadedPipelineTest < Minitest::Test
     pipeline.feed(2)
     results = pipeline.finish
     assert_equal([4, 6], results)
+    assert_equal([false, false], pipeline.instance_variable_get(:@threads).map(&:status))
   end
 
   def test_double_start_fails
@@ -69,10 +72,12 @@ class ThreadedPipelineTest < Minitest::Test
     assert_equal([4, 6], results)
     results = pipeline.process([1, 2])
     assert_equal([4, 6], results)
+    assert_equal([false, false], pipeline.instance_variable_get(:@threads).map(&:status))
     pipeline.feed(2)
     pipeline.feed(3)
     results = pipeline.finish
     assert_equal([6, 8], results)
+    assert_equal([false, false], pipeline.instance_variable_get(:@threads).map(&:status))
   end
 
   def test_no_finish_before_starting
@@ -84,11 +89,18 @@ class ThreadedPipelineTest < Minitest::Test
     pipeline = two_stage_pipeline(discard_results: true)
     results = pipeline.process([1, 2])
     assert_nil(results)
+    assert_equal([false, false], pipeline.instance_variable_get(:@threads).map(&:status))
   end
 
   def test_process_unthreaded
+    # puts "test_process_unthreaded"
     pipeline = two_stage_pipeline
+    # puts "test_process_unthreaded inited"
+    # sleep 5
     results = pipeline.process_unthreaded([1, 2])
+    # puts "test_process_unthreaded result"
+    # sleep 5
     assert_equal([4, 6], results)
+    assert_equal([false, false], pipeline.instance_variable_get(:@threads).map(&:status))
   end
 end
