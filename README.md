@@ -56,7 +56,7 @@ This is even handy if you just want to process output from some other task in th
 simple_pipeline = ThreadedPipeline.new(discard_results: true)
 simple_pipeline.stages << -> (some_data) { process_data(some_data) }
 while some_data = some_object_that.generates_data
-  simple_pipeline.feed(url)
+  simple_pipeline.feed(some_object_that)
 end
 simple_pipeline.finish
 ```
