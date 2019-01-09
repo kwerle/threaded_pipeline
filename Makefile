@@ -1,5 +1,6 @@
 PROJECT_NAME = threaded_pipeline
 VOLUMES = -v $$PWD:/tmp/src -w /tmp/src
+LOCAL_LINK=-v $(PWD):/tmp/src -w /tmp/src
 
 image:
 	rm -f Gemfile.lock
@@ -26,3 +27,11 @@ test_jruby:
 	docker run --rm $(VOLUMES) jruby bash -c "bundle -j 4 && rake"
 
 test_multiple: test test_jruby
+
+gem: image
+	rm -f $(PROJECT_NAME)*.gem
+	docker run $(LOCAL_LINK) $(PROJECT_NAME) gem build $(PROJECT_NAME)
+
+# Requires rubygems be installed on host
+gem_release: gem
+	gem push $(PROJECT_NAME)*.gem
