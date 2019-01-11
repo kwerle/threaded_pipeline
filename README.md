@@ -1,5 +1,7 @@
 # ThreadedPipeline
 
+Build status: [![CircleCI](https://circleci.com/gh/kwerle/threaded_pipeline.svg?style=svg)](https://circleci.com/gh/kwerle/threaded_pipeline)
+
 Recently I have been doing a lot of the pattern:
 1. Download file from list of URLs
 1. Process file
