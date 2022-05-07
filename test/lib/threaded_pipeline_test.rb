@@ -3,8 +3,8 @@
 require 'test_helper'
 
 class ThreadedPipelineTest < Minitest::Test
-  def two_stage_pipeline(*args)
-    pipeline = ThreadedPipeline.new(*args)
+  def two_stage_pipeline(*, **args)
+    pipeline = ThreadedPipeline.new(**args)
     pipeline.stages << ->(arg) { arg + 1 }
     pipeline.stages << ->(arg) { arg * 2 }
     pipeline

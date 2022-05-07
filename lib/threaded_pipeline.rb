@@ -83,7 +83,7 @@ class ThreadedPipeline
 
   private
 
-  def initialize_run(without_threads = false)
+  def initialize_run(without_threads: false)
     raise "Already started pipeline #{inspect}" if @started
 
     @started = true
@@ -123,7 +123,7 @@ class ThreadedPipeline
   def queue_hash
     return @queue_hash unless @queue_hash.nil?
 
-    @queue_hash = stages.map { |stage| [stage, Queue.new] }.to_h
+    @queue_hash = stages.to_h { |stage| [stage, Queue.new] }
   end
 
   # How we know we're done?

@@ -1,5 +1,5 @@
 # ruby:alpine does not play well with rubocop
-FROM ruby
+FROM ruby:3
 
 WORKDIR /threaded_pipeline
 
