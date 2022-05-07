@@ -1,5 +1,7 @@
 # ThreadedPipeline
 
+Build status: [![CircleCI](https://circleci.com/gh/kwerle/threaded_pipeline.svg?style=svg)](https://circleci.com/gh/kwerle/threaded_pipeline)
+
 Recently I have been doing a lot of the pattern:
 1. Download file from list of URLs
 1. Process file
@@ -36,6 +38,32 @@ threaded_pipeline.stages << -> (local_file) { process_local_file(local_file) }
 threaded_pipeline.stages << -> (processed_results) { record_results_in_database(processed_results) }
 results = threaded_pipeline.process([list, of, large, csv, urls])
 ```
+
+Or, if you want to feed it yourself - and also discard the results:
+
+```
+another_pipeline = ThreadedPipeline.new(discard_results: true)
+another_pipeline.stages << -> (url) { api_query(url) }
+another_pipeline.stages << -> (returned_data) { process_returned_data(returned_data) }
+another_pipeline.stages << -> (processed_results) { record_results_in_database(processed_results) }
+while url = web_crawl_urls
+  another_pipeline.feed(url)
+end
+another_pipeline.finish
+```
+
+This is even handy if you just want to process output from some other task in the background:
+
+```
+simple_pipeline = ThreadedPipeline.new(discard_results: true)
+simple_pipeline.stages << -> (some_data) { process_data(some_data) }
+while (some_data = some_object_that.generates_data)
+  simple_pipeline.feed(some_data)
+end
+simple_pipeline.finish
+```
+
+Which just encapsulates setting up the queue, settin up a completion condition/object, etc.
 
 ## Development
 
